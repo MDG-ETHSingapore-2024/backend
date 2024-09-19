@@ -1,8 +1,8 @@
 package route
 
 import (
-	"backend/api"
-	"backend/middleware"
+	"backend/infrastructure/rest/api"
+	"backend/infrastructure/rest/middleware"
 
 	"github.com/labstack/echo/v4"
 )
@@ -10,6 +10,7 @@ import (
 func InitRouter() {
 	e := echo.New()
 	e.Use(middleware.SessionAuth)
+
 	e.GET("/ping", api.PingPong())
 	e.Logger.Fatal(e.Start(":1323"))
 }

@@ -1,6 +1,6 @@
 package main
 
-import "backend/route"
+import "backend/infrastructure/rest/route"
 
 func main() {
 	route.InitRouter()

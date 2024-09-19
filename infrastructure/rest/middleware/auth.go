@@ -1,7 +1,8 @@
 package middleware
 
 import (
-	"backend/services"
+	"backend/infrastructure/rest/services"
+
 	"github.com/labstack/echo/v4"
 )
 
