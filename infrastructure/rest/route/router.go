@@ -7,10 +7,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func InitRouter() {
-	e := echo.New()
-	e.Use(middleware.SessionAuth)
-
-	e.GET("/ping", api.PingPong())
-	e.Logger.Fatal(e.Start(":1323"))
+func InitRouter(e *echo.Echo) {
+	router := e.Group("/v1")
+	router.Use(middleware.SessionAuth)
+	{
+		router.GET("/ping", api.PingPong())
+	}
 }
