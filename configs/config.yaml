@@ -9,4 +9,3 @@ Secure:
   JWTRefreshSecure: "refreshKey"
   JWTAccessTimeMinute: "1000"
   JWTRefreshTimeHour: "2400"
-Database: ""
