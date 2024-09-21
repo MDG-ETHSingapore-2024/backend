@@ -64,3 +64,11 @@ func ConstructDeleteQuery(table string, ops []operations.OperationObject) string
 	stmt += ";"
 	return stmt
 }
+
+func CreateDatabase(dbName string) string {
+	return fmt.Sprintf("CREATE DATABASE %s;", dbName)
+}
+
+func DeleteDatabase(dbName string) string {
+	return fmt.Sprintf("DROP DATABASE IF EXISTS %s;", dbName)
+}

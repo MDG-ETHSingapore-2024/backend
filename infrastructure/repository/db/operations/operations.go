@@ -2,7 +2,7 @@ package operations
 
 import "fmt"
 
-const ConnectionString = ""
+const ConnectionString = "host=localhost port=5432 user=postgres password=dpsingh05 dbname=postgres sslmode=disable"
 
 type Operation int
 

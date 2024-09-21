@@ -8,10 +8,13 @@ import (
 
 func SessionAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		accessToken := c.Request().Header.Get("Authorization")
-		if !services.VerifyToken(accessToken) {
-			return c.String(401, "Bad token")
+		walletId := c.Request().Header.Get("X-Wallet-Address")
+
+		if !services.VerifyWalletID(walletId) {
+			return c.String(401, "Invalid wallet ID")
 		}
+
+		// If valid, proceed to the next handler
 		return next(c)
 	}
 }

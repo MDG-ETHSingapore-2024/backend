@@ -11,10 +11,17 @@ func InitRouter(e *echo.Echo) {
 	router := e.Group("/v1")
 	router.Use(middleware.SessionAuth)
 	{
-		router.GET("/:projectId/:tableId", api.GetData)
-		router.POST("/:projectId/:tableId", api.InsertData)
-		router.PATCH("/:projectId/:tableId", api.UpdateData)
-		router.DELETE("/:projectId/:tableId", api.DeleteData)
-		router.GET("/ping", api.PingPong())
+		router.GET("/dbs", api.RetrieveAllDatabases)
+		router.GET("/:dbName/tables", api.ViewAllTables)
+		router.GET("/:dbName/:tableName/data", api.ViewAllData)
+		router.POST("/db", api.CreateDatabase)
+		router.POST("/:dbName/table", api.CreateTable)
+		router.POST("/:dbName/:tableName/column", api.AddColumn)
+		router.POST("/:dbName/:tableName/row", api.AddRow)
+
+		// NoSQL Collection Operations
+		// router.POST("/:dbId/collection", api.CreateTable)
+		// router.POST("/:dbId/:collectionId/document", api.AddDocument)
+		// router.POST("/:dbId/:collectionId/attribute", api.AddAttribute)
 	}
 }

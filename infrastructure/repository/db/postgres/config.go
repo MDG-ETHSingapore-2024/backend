@@ -3,6 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"log"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -23,13 +24,13 @@ type Result struct {
 	rows   *sql.Rows
 }
 
-func (r *Result) Rows() *sql.Rows {
-	return r.rows
-}
-
 func OpenDatabase(dbName string, connstr string) *Repository {
 	if dbName == "" {
 		dbName = "postgres"
+	}
+
+	if !containsSSLMode(connstr) {
+		connstr += " sslmode=disable"
 	}
 
 	db, err := sql.Open(dbName, connstr)
@@ -50,6 +51,10 @@ func OpenDatabase(dbName string, connstr string) *Repository {
 	}
 }
 
+func containsSSLMode(connstr string) bool {
+	return strings.Contains(connstr, "sslmode=")
+}
+
 func (r *Repository) CloseDatabase() {
 	err := r.db.Close()
 	if err != nil {
@@ -58,18 +63,18 @@ func (r *Repository) CloseDatabase() {
 }
 
 func (r *Repository) ExecuteQuery(stmt string, args ...any) *Result {
-	rows, err := r.db.Query(stmt, args)
-	if err != nil {
-		log.Fatalln(err.Error())
-		return &Result {
-			status: Failure,
-		}
-	}
+    rows, err := r.db.Query(stmt, args...)
+    if err != nil {
+        log.Fatalln(err.Error())
+        return &Result{
+            status: Failure,
+        }
+    }
 
-	return &Result {
-		status: Success,
-		rows: rows,
-	}
+    return &Result{
+        status: Success,
+        rows: rows,
+    }
 }
 
 func (r *Result) Status() ResultStatus {
