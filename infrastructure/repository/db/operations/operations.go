@@ -2,6 +2,8 @@ package operations
 
 import "fmt"
 
+const ConnectionString = ""
+
 type Operation int
 
 const (
@@ -31,14 +33,13 @@ var operationStatement = map[Operation]string{
 	GreaterThanEqualTo: ">=",
 	LesserThanEqualTo:  "<=",
 	NotEqualTo:         "!=",
-	// TODO: Remove orderby
-	OrderBy: "",
+	OrderBy:            "",
 }
 
 type OperationObject struct {
-	operation  Operation
-	columnName string
-	value      string
+	Operation  Operation
+	ColumnName string
+	Value      string
 }
 
 func GetOperation(opCode string) Operation {
@@ -46,6 +47,6 @@ func GetOperation(opCode string) Operation {
 }
 
 func GetOperationStatement(op OperationObject) string {
-	s := fmt.Sprintf("%s %s %s", op.columnName, operationStatement[op.operation], op.value)
+	s := fmt.Sprintf("%s %s %s", op.ColumnName, operationStatement[op.Operation], op.Value)
 	return s
 }
