@@ -16,7 +16,7 @@ func PingPong() echo.HandlerFunc {
 }
 
 func GetData(c echo.Context) error {
-	projectId := c.Param("projectId")
+	// projectId := c.Param("projectId")
 	tableId := c.Param("tableId")
 	queryParams := c.QueryParams()
 
@@ -28,15 +28,15 @@ func GetData(c echo.Context) error {
 	defer repo.CloseDatabase()
 
 	result := repo.ExecuteQuery(query)
-	if result.status == postgres.Failure {
+	if result.Status() == postgres.Failure {
 		return c.JSON(http.StatusInternalServerError, "Failed to execute query")
 	}
 
-	return c.JSON(http.StatusOK, result.rows)
+	return c.JSON(http.StatusOK, result.Rows())
 }
 
 func InsertData(c echo.Context) error {
-	projectId := c.Param("projectId")
+	// projectId := c.Param("projectId")
 	tableId := c.Param("tableId")
 	var data map[string]string
 	if err := c.Bind(&data); err != nil {
@@ -56,7 +56,7 @@ func InsertData(c echo.Context) error {
 	defer repo.CloseDatabase()
 
 	result := repo.ExecuteQuery(query)
-	if result.status == postgres.Failure {
+	if result.Status() == postgres.Failure {
 		return c.JSON(http.StatusInternalServerError, "Failed to execute query")
 	}
 
@@ -64,7 +64,7 @@ func InsertData(c echo.Context) error {
 }
 
 func UpdateData(c echo.Context) error {
-	projectId := c.Param("projectId")
+	// projectId := c.Param("projectId")
 	tableId := c.Param("tableId")
 	queryParams := c.QueryParams()
 	var data map[string]string
@@ -86,7 +86,7 @@ func UpdateData(c echo.Context) error {
 	defer repo.CloseDatabase()
 
 	result := repo.ExecuteQuery(query)
-	if result.status == postgres.Failure {
+	if result.Status() == postgres.Failure {
 		return c.JSON(http.StatusInternalServerError, "Failed to execute query")
 	}
 
@@ -94,7 +94,7 @@ func UpdateData(c echo.Context) error {
 }
 
 func DeleteData(c echo.Context) error {
-	projectId := c.Param("projectId")
+	// projectId := c.Param("projectId")
 	tableId := c.Param("tableId")
 	queryParams := c.QueryParams()
 
@@ -105,7 +105,7 @@ func DeleteData(c echo.Context) error {
 	defer repo.CloseDatabase()
 
 	result := repo.ExecuteQuery(query)
-	if result.status == postgres.Failure {
+	if result.Status() == postgres.Failure {
 		return c.JSON(http.StatusInternalServerError, "Failed to execute query")
 	}
 

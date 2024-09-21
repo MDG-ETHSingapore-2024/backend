@@ -67,3 +67,11 @@ func (r *Repository) ExecuteQuery(stmt string, args ...any) *Result {
 		rows: rows,
 	}
 }
+
+func (r *Result) Status() ResultStatus {
+	return r.status
+}
+
+func (r *Result) Rows() *sql.Rows {
+	return r.rows
+}
