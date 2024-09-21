@@ -5,7 +5,7 @@ import (
 	"backend/infrastructure/repository/db/operations"
 	"net/http"
 	"strings"
-	
+	"fmt"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,15 +15,29 @@ func PingPong() echo.HandlerFunc {
 	}
 }
 
+func getTableId(c echo.Context) string {
+	return c.Param("tableId")
+}
+
+func getQueryParams(c echo.Context) map[string][]string {
+	return c.QueryParams()
+}
+
+func parseColumns(queryParams map[string][]string) []string {
+	columnsParam := queryParams["columns"]
+	if len(columnsParam) > 0 && columnsParam[0] != "" {
+		return strings.Split(columnsParam[0], ",")
+	}
+	return []string{"*"}
+}
+
 func GetData(c echo.Context) error {
-	// projectId := c.Param("projectId")
-	tableId := c.Param("tableId")
-	queryParams := c.QueryParams()
-
-	columns := []string{"*"}
+	tableId := getTableId(c)
+	queryParams := getQueryParams(c)
+	columns := parseColumns(queryParams)
 	ops := parseQueryParams(queryParams)
-	query := postgres.ConstructSelectQuery(tableId, columns, ops)
 
+	query := postgres.ConstructSelectQuery(tableId, columns, ops)
 	repo := postgres.OpenDatabase("postgres", operations.ConnectionString)
 	defer repo.CloseDatabase()
 
@@ -36,22 +50,16 @@ func GetData(c echo.Context) error {
 }
 
 func InsertData(c echo.Context) error {
-	// projectId := c.Param("projectId")
-	tableId := c.Param("tableId")
+	tableId := getTableId(c)
 	var data map[string]string
+
 	if err := c.Bind(&data); err != nil {
 		return c.JSON(http.StatusBadRequest, "Invalid data")
 	}
 
-	columns := make([]string, 0, len(data))
-	values := make([]string, 0, len(data))
-	for k, v := range data {
-		columns = append(columns, k)
-		values = append(values, v)
-	}
+	columns, values := prepareColumnsAndValues(data)
 
 	query := postgres.ConstructInsertQuery(tableId, columns, values)
-
 	repo := postgres.OpenDatabase("postgres", operations.ConnectionString)
 	defer repo.CloseDatabase()
 
@@ -64,24 +72,18 @@ func InsertData(c echo.Context) error {
 }
 
 func UpdateData(c echo.Context) error {
-	// projectId := c.Param("projectId")
-	tableId := c.Param("tableId")
-	queryParams := c.QueryParams()
+	tableId := getTableId(c)
+	queryParams := getQueryParams(c)
 	var data map[string]string
+
 	if err := c.Bind(&data); err != nil {
 		return c.JSON(http.StatusBadRequest, "Invalid data")
 	}
 
-	columns := make([]string, 0, len(data))
-	values := make([]string, 0, len(data))
-	for k, v := range data {
-		columns = append(columns, k)
-		values = append(values, v)
-	}
-
+	columns, values := prepareColumnsAndValues(data)
 	ops := parseQueryParams(queryParams)
-	query := postgres.ConstructUpdateQuery(tableId, columns, values, ops)
 
+	query := postgres.ConstructUpdateQuery(tableId, columns, values, ops)
 	repo := postgres.OpenDatabase("postgres", operations.ConnectionString)
 	defer repo.CloseDatabase()
 
@@ -94,13 +96,11 @@ func UpdateData(c echo.Context) error {
 }
 
 func DeleteData(c echo.Context) error {
-	// projectId := c.Param("projectId")
-	tableId := c.Param("tableId")
-	queryParams := c.QueryParams()
-
+	tableId := getTableId(c)
+	queryParams := getQueryParams(c)
 	ops := parseQueryParams(queryParams)
-	query := postgres.ConstructDeleteQuery(tableId, ops)
 
+	query := postgres.ConstructDeleteQuery(tableId, ops)
 	repo := postgres.OpenDatabase("postgres", operations.ConnectionString)
 	defer repo.CloseDatabase()
 
@@ -116,26 +116,39 @@ func parseQueryParams(queryParams map[string][]string) []operations.OperationObj
 	ops := make([]operations.OperationObject, 0)
 
 	for key, values := range queryParams {
+		if key == "columns" {
+			continue
+		}
+
 		for _, value := range values {
-			// Split the value by ':' to get the operation and the actual value
 			parts := strings.Split(value, ":")
 			if len(parts) != 2 {
-				continue // Skip if the format is incorrect
+				continue
 			}
 
-			opCode := parts[0] // eq, gt, lt, etc.
-			val := parts[1]    // actual value
-
-			// Get the operation type from the map
+			opCode := parts[0]
+			val := parts[1]
 			op := operations.GetOperation(opCode)
 
 			ops = append(ops, operations.OperationObject{
 				Operation:  op,
 				ColumnName: key,
-				Value:      val,
+				Value:      fmt.Sprintf("'%s'", val),
 			})
 		}
 	}
 
 	return ops
+}
+
+func prepareColumnsAndValues(data map[string]string) ([]string, []string) {
+	columns := make([]string, 0, len(data))
+	values := make([]string, 0, len(data))
+
+	for k, v := range data {
+		columns = append(columns, k)
+		values = append(values, fmt.Sprintf("'%s'", v))
+	}
+
+	return columns, values
 }

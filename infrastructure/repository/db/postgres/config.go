@@ -20,7 +20,11 @@ type Repository struct {
 
 type Result struct {
 	status ResultStatus
-	rows *sql.Rows
+	rows   *sql.Rows
+}
+
+func (r *Result) Rows() *sql.Rows {
+	return r.rows
 }
 
 func OpenDatabase(dbName string, connstr string) *Repository {
