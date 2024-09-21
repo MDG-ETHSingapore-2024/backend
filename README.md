@@ -13,7 +13,7 @@
 ### Architecture
 ```
 .
-├── infrastructure/rest/
+├── infrastructure
 │   ├── rest
 │   └── repository
 ├── domain
